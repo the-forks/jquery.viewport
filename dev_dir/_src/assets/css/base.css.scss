@@ -1,0 +1,29 @@
+#base_viewport{
+  height: 300px;
+  width:  300px;
+  overflow: scroll;
+  background: lightgray;
+
+  p{
+    word-spacing: 0;
+    white-space: nowrap;
+  }
+  span{
+    height: 30px;
+    width: 30px;
+    line-height: 10px;
+
+    border-radius: 30px;
+    display: inline-block;
+
+    text-align: center;
+    background: yellow;
+    margin-right: 10px;
+    padding: 10px;
+    font-size: 13px;
+
+    &.detected{
+      background: red;
+    }
+  }
+}

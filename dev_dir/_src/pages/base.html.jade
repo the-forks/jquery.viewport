@@ -1,0 +1,28 @@
+doctype html
+html(lang='ru')
+  head
+    title Grunt PlayGround
+    link(rel='stylesheet', href='/assets/css/base.css')
+    script(type='text/javascript' src='/assets/js/base.js')
+    script(type='text/javascript' src='http://localhost:9000/livereload.js')
+  body
+    h1 JQuery.Viewport. Base Example
+    br
+    a(href='/') &larr; Index Page
+
+    br
+    br
+
+    #base_viewport
+      - var mi = 30
+      - var mj = 30
+      - for(var i = 1; i <= mi; i++){
+        p
+          - for(var j = 1; j <= mj; j++){
+            - if(i == (mi/2) && j == (mj/2) ){
+              span.detected #{ j }
+            - }else{
+              span #{ j }
+            - }
+          - }
+      - }

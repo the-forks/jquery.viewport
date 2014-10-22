@@ -1,0 +1,215 @@
+# grunt.registerTask 'minify', ['newer:uglify:all']
+
+module.exports = (grunt) ->
+  # Load the plugins
+  grunt.loadNpmTasks 'grunt-contrib-clean'
+
+  grunt.loadNpmTasks 'grunt-contrib-sass'
+  grunt.loadNpmTasks 'grunt-contrib-cssmin'
+
+  grunt.loadNpmTasks 'grunt-contrib-coffee'
+  grunt.loadNpmTasks 'grunt-contrib-uglify'
+
+  grunt.loadNpmTasks 'grunt-contrib-jade'
+
+  grunt.loadNpmTasks 'grunt-contrib-copy'
+  grunt.loadNpmTasks 'grunt-contrib-concat'
+
+  grunt.loadNpmTasks 'grunt-contrib-connect'
+  grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-newer'
+
+  # Project configuration
+  grunt.initConfig
+    pkg: grunt.file.readJSON("package.json")
+
+    # CLEANUP
+    clean: ["build"]
+
+    # SCSS
+    sass:
+      options:
+        style: "expanded"
+
+      dist:
+        files: [
+          expand: true
+          cwd: "_src/assets/css"
+          src: ["**/*.css.scss"]
+          dest: "build/assets/css"
+          ext: ".css"
+        ]
+
+    # COFFEE
+    coffee:
+      compile:
+        files: [
+          cwd: "_src/assets/js"
+          src: ["**/*.js.coffee"]
+          dest: "build/assets/js"
+          expand: true
+          ext: ".js"
+        ]
+
+    # JADE
+    jade:
+      compile:
+        options:
+          client: false
+          pretty: true
+
+        files: [
+          cwd: "_src"
+          src: ["**/*.html.jade"]
+          dest: "build"
+          expand: true
+          ext: ".html"
+        ]
+
+    # COPY
+    copy:
+      main:
+        files: [
+          {
+            src: ['**/*']
+            expand: true
+            cwd:  '_src/assets/imgs'
+            dest: 'build/assets/imgs'
+          },{
+            src: ['**/*', '!*.css.scss']
+            expand: true
+            cwd:  '_src/assets/css/vendors'
+            dest: 'build/assets/css/vendors'
+          },{
+            src: ['**/*', '!*.js.coffee']
+            expand: true
+            cwd:  '_src/assets/js/vendors'
+            dest: 'build/assets/js/vendors'
+          },{
+            src: ['**/*']
+            expand: true
+            cwd:  '_src/assets/vendors'
+            dest: 'build/assets/vendors'
+          }
+        ]
+
+    # CONCAT + MANIFESTO
+    concat:
+      main_css:
+        src: [
+          'build/assets/vendors/bootstrap-3.2.0/css/bootstrap.css'
+          'build/assets/css/common.css'
+          'build/assets/css/index.css'
+        ],
+        dest: 'build/assets/css/index.css'
+
+      base_css:
+        src: [
+          'build/assets/vendors/bootstrap-3.2.0/css/bootstrap.css'
+          'build/assets/css/common.css'
+          'build/assets/css/base.css'
+        ],
+        dest: 'build/assets/css/base.css'
+
+      main_js:
+        src: [
+          'build/assets/js/vendors/jquery/jquery-2.1.1.js'
+          'build/assets/js/vendors/the_helpers.js'
+          '../jquery.viewport.js'
+
+          'build/assets/js/index.js'
+        ],
+        dest: 'build/assets/js/index.js'
+
+      base_js:
+        src: [
+          'build/assets/js/vendors/jquery/jquery-2.1.1.js'
+          'build/assets/js/vendors/the_helpers.js'
+          '../jquery.viewport.js'
+
+          'build/assets/js/base.js'
+        ],
+        dest: 'build/assets/js/base.js'
+
+    # CSS MIN
+    cssmin:
+      app:
+        files: [
+          src:  "build/assets/css/application.css"
+          dest: "build/assets/css/application.min.css"
+        ]
+
+    # JS MIN (UGLIFY)
+    uglify:
+      app:
+        options:
+          banner: '/*! <%= pkg.name %> App: <%= grunt.template.today(\"yyyy-mm-dd\") %> */\n'
+        files: [
+          src:  "build/assets/js/application.js"
+          dest: "build/assets/js/application.min.js"
+        ]
+
+    # WATCH NEW AND RECOMPILE
+    watch:
+      coffeescript:
+        options:
+          livereload: 9000
+
+        files: ["_src/assets/js/**/*.js.coffee"]
+        tasks: [
+          "coffee"
+          "concat:main_js"
+          "concat:base_js"
+          # "uglify:app"
+        ]
+
+      scss:
+        options:
+          livereload: 9000
+
+        files: ["_src/assets/css/**/*.css.scss"]
+        tasks: [
+          "sass"
+          "concat:main_css"
+          "concat:base_css"
+          # "cssmin:app"
+        ]
+      jade:
+        options:
+          livereload: 9000
+
+        files: ["_src/**/*.html.jade"]
+        tasks: ["jade"]
+
+    # WEB SERVER
+    connect:
+      server:
+        options:
+          port: 3000
+          base: 'build'
+
+  grunt.registerTask "first:processing", [
+    "clean"
+
+    "sass"
+    "coffee"
+    "jade"
+
+    "copy:main"
+
+    "concat:main_css"
+    "concat:base_css"
+
+    "concat:main_js"
+    "concat:base_js"
+
+    # "cssmin:app"
+    # "uglify:app"
+  ]
+
+  # Default task(s)
+  grunt.registerTask "default", [
+    "first:processing"
+    "connect"
+    "watch"
+  ]
